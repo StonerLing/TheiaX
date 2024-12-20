@@ -60,15 +60,15 @@ if (EXISTS ${LOCAL_GIT_DIRECTORY})
     # Download the hook only if it is not already present. We borrow the hook
     # hosted by Ceres because it is not specific to the project.
     file(DOWNLOAD http://www.theia-sfm.org/_static/commit-msg
-         ${CMAKE_BINARY_DIR}/commit-msg)
+          ${CMAKE_BINARY_DIR}/commit-msg)
 
     # Make the downloaded file executable, since it is not by default.
     file(COPY ${CMAKE_BINARY_DIR}/commit-msg
-         DESTINATION ${LOCAL_GIT_DIRECTORY}/hooks/
-         FILE_PERMISSIONS
-           OWNER_READ OWNER_WRITE OWNER_EXECUTE
-           GROUP_READ GROUP_WRITE GROUP_EXECUTE
-           WORLD_READ WORLD_EXECUTE)
+          DESTINATION ${LOCAL_GIT_DIRECTORY}/hooks/
+          FILE_PERMISSIONS
+            OWNER_READ OWNER_WRITE OWNER_EXECUTE
+            GROUP_READ GROUP_WRITE GROUP_EXECUTE
+            WORLD_READ WORLD_EXECUTE)
   endif (NOT EXISTS ${LOCAL_GIT_DIRECTORY}/hooks/commit-msg)
 endif (EXISTS ${LOCAL_GIT_DIRECTORY})
 
@@ -83,8 +83,9 @@ option(BUILD_DOCUMENTATION "Build html User's Guide" OFF)
 enable_testing()
 if (NOT MSVC)
   add_definitions(-DGTEST_USE_OWN_TR1_TUPLE=1)
+  add_definitions(-DNOMINMAX)
 endif (NOT MSVC)
-set(GTEST_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libraries/gtest")
+
 add_definitions(-DGTEST_TESTING_OUTPUT_DIRECTORY="${CMAKE_BINARY_DIR}/testing_output")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -197,7 +198,7 @@ endif (SUITESPARSE_FOUND)
 
 # RocksDB
 message("-- Check for RocksDB")
-find_package(RocksDB REQUIRED)
+find_package(ROCKSDB REQUIRED)
 if (ROCKSDB_FOUND)
   message("-- Found RocksDB: ${ROCKSDB_INCLUDE_DIR}")
 else (ROCKSDB_FOUND)
@@ -212,6 +213,62 @@ if (RapidJSON_FOUND)
 else (RapidJSON_FOUND)
   message(FATAL_ERROR "Can't find RapidJSON. Please set RAPIDJSON_INCLUDE_DIRS to use RapidJSON.")
 endif (RapidJSON_FOUND)
+
+# Cereal
+message("-- Check for Cereal")
+find_package(Cereal REQUIRED)
+if (Cereal_FOUND)
+  message("-- Found Cereal: ${CEREAL_INCLUDE_DIRS}")
+else (Cereal_FOUND)
+  message(FATAL_ERROR "Can't find Cereal. Please set CEREAL_INCLUDE_DIRS to use Cereal.")
+endif (Cereal_FOUND)
+
+# FLANN
+message("-- Check for FLANN")
+find_package(FLANN REQUIRED)
+if (FLANN_FOUND)
+  message("-- Found FLANN: ${FLANN_INCLUDE_DIRS}")
+else (FLANN_FOUND)
+  message(FATAL_ERROR "Can't find FLANN. Please set FLANN_INCLUDE_DIRS to use FLANN.")
+endif (FLANN_FOUND)
+
+# FreeImage
+message("-- Check for FreeImage")
+find_package(FreeImage REQUIRED)
+if (FreeImage_FOUND)
+  message("-- Found FLANN: ${FreeImage_INCLUDE_DIRS}")
+else (FreeImage_FOUND)
+message(FATAL_ERROR "Can't find FreeImage. Please set FreeImage_INCLUDE_DIRS to use FreeImage.")
+endif(FreeImage_FOUND)
+
+# Exiv2
+message("-- Check for Exiv2")
+find_package(Exiv2 REQUIRED)
+if (Exiv2_FOUND)
+message("-- Found Exiv2: ${Exiv2_INCLUDE_DIRS}")
+else (Exiv2_FOUND)
+message(FATAL_ERROR "Can't find Exiv2. Please set Exiv2_INCLUDE_DIRS to use Exiv2.")
+endif(Exiv2_FOUND)
+
+# vlfeat
+find_package(vlfeat REQUIRED)
+if (vlfeat_FOUND)
+message("-- Found vlfeat: ${vlfeat_INCLUDE_DIRS}")
+else (vlfeat_FOUND)
+message(FATAL_ERROR "Can't find vlfeat. Please set vlfeat_INCLUDE_DIRS to use vlfeat.")
+endif(vlfeat_FOUND)
+
+
+# GTest
+if (${BUILD_TESTING})
+  message("-- Check for GTest")
+  find_package(GTest REQUIRED)
+  if (GTest_FOUND)
+    message("-- Found GTest: ${GTEST_INCLUDE_DIRS}")
+  else (GTest_FOUND)
+    message(FATAL_ERROR "Can't find Cereal. Please set GTEST_INCLUDE_DIRS to use GTest.")
+  endif (GTest_FOUND)
+endif ()
 
 include_directories(
   include
@@ -246,19 +303,11 @@ include_directories(
   libraries/spectra
   ${akaze_SOURCE_DIR}
   ${akaze_INCLUDE_DIR}
-  ${cereal_SOURCE_DIR}
-  ${cereal_SOURCE_DIR}/include
-  ${flann_SOURCE_DIR}
-  ${flann_SOURCE_DIR}/src/cpp
-  ${gtest_SOURCE_DIR}/include
-  ${gtest_SOURCE_DIR}
   ${optimo_SOURCE_DIR}
   ${statx_SOURCE_DIR}
   ${stlplus3_SOURCE_DIR}
-  ${vlfeat_SOURCE_DIR}
   ${visual_sfm_SOURCE_DIR})
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(OptimizeTheiaCompilerFlags)
 optimizetheiacompilerflags()
 

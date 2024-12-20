@@ -214,18 +214,18 @@ set(THEIA_SRC
   )
 
 set(THEIA_LIBRARY_DEPENDENCIES
-  ${CERES_LIBRARIES}
-  ${GFLAGS_LIBRARIES}
-  ${GLOG_LIBRARIES}
-  ${OPENIMAGEIO_LIBRARIES}
-  ${ROCKSDB_LIBRARIES}
-  ${SUITESPARSE_LIBRARIES}
-  akaze
-  flann_cpp
-  statx
-  stlplus3
-  vlfeat
-  visual_sfm
+      Ceres::ceres
+      Eigen3::Eigen
+      gflags::gflags
+      glog::glog
+      freeimage::FreeImage
+      Exiv2::exiv2lib
+      RapidJSON
+      RocksDB::rocksdb
+      SuiteSparse::ccolamd
+      cereal::cereal
+      unofficial::vlfeat::vl
+      flann::flann
 )
 
 set(THEIA_LIBRARY_SOURCE
@@ -252,7 +252,7 @@ if (BUILD_TESTING)
     list(GET TEST_NAME_LIST 0 TEST_NAME)
     add_executable(${TEST_NAME}_test test/test_main.cc ${FILENAME}_test.cc)
     target_link_libraries(${TEST_NAME}_test
-      gtest
+      GTest::gtest
       theia
       ${THEIA_LIBRARY_DEPENDENCIES})
     add_test(NAME ${TEST_NAME}_test

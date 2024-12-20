@@ -35,17 +35,15 @@
 #ifndef THEIA_SFM_EXIF_READER_H_
 #define THEIA_SFM_EXIF_READER_H_
 
-#include <OpenImageIO/imageio.h>
 #include <string>
 #include <unordered_map>
+
+#include <exiv2/exiv2.hpp>
 
 #include "theia/util/hash.h"
 #include "theia/util/util.h"
 
 namespace theia {
-// Aliasing oiio to whatever the correct Open Image IO namesace is.
-// The macro OIIO_NAMESPACE is defined in OpenImageIO/oiioversion.h.
-namespace oiio = OIIO_NAMESPACE;
 
 struct CameraIntrinsicsPrior;
 
@@ -74,16 +72,31 @@ class ExifReader {
  private:
   void LoadSensorWidthDatabase();
 
-  // Sets the focal length from the focal plane resolution. Returns true if a
-  // valid focal length is found and false otherwise.
-  bool SetFocalLengthFromExif(
-      const oiio::ImageSpec& image_spec,
+  // Set the focal length prior from EXIF FocalPlaneResolution. We esitimate the
+  // focal length in pixels via:
+  // f_x=f_y=f \times 0.5(width + height) / ccdWidth
+  // ccdWidth = width / (xResolution / unit)
+  bool setFocalLengthPriorFromExifResolution(
+      const Exiv2::ExifData& exif_data,
       CameraIntrinsicsPrior* camera_intrinsics_prior) const;
 
   // Sets the focal length from a look up in the sensor width database. Returns
   // true if a valid focal length is found and false otherwise.
   bool SetFocalLengthFromSensorDatabase(
-      const oiio::ImageSpec& image_spec,
+      const Exiv2::ExifData& exif_data,
+      CameraIntrinsicsPrior* camera_intrinsics_prior) const;
+
+  // Set the focal length prior from camera EXIF FocalLengthIn35mmFilm. We
+  // estimate the focal length in pixels via(since the film size is 36\times
+  // 24mm):
+  // f_x=f_y=f \times 36 / focalLengthIn35mmFilm
+  bool setFocalLengthPriorFromExif35Film(
+      const Exiv2::ExifData& exif_data,
+      CameraIntrinsicsPrior* camera_intrinsics_prior) const;
+
+  // Set the GPS prior from EXIF metadata.
+  bool setGpsPriorFromExif(
+      const Exiv2::ExifData& exif_data,
       CameraIntrinsicsPrior* camera_intrinsics_prior) const;
 
   std::unordered_map<std::string, double> sensor_width_database_;

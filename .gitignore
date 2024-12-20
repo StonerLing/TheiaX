@@ -1,1 +1,6 @@
-build/*
+[Bb]uild/*
+.vscode/*
+.clangd
+.cache/*
+
+CMakeUserPresets.json

@@ -106,7 +106,8 @@ class LmedTest : public ::testing::Test {
                                  rng.RandDouble(0.0, 10000));
     }
     // Reshuffle.
-    std::random_shuffle(input_points->begin(), input_points->end());
+    std::mt19937 gen(std::random_device{}());
+    std::shuffle(input_points->begin(), input_points->end(), gen);
   }
 
   static void TearDownTestCase() {

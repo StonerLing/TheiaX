@@ -32,17 +32,16 @@
 // Please contact the author of this library if you have any questions.
 // Author: Chris Sweeney (cmsweeney@cs.ucsb.edu)
 
-#include <ceres/ceres.h>
-#include <ceres/rotation.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <algorithm>
+#include <ceres/ceres.h>
+#include <ceres/rotation.h>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "gtest/gtest.h"
 #include "theia/math/util.h"
 #include "theia/sfm/camera/camera.h"
 #include "theia/sfm/global_pose_estimation/linear_position_estimator.h"
@@ -53,6 +52,7 @@
 #include "theia/util/map_util.h"
 #include "theia/util/random.h"
 #include "theia/util/stringprintf.h"
+#include "gtest/gtest.h"
 
 namespace theia {
 
@@ -83,8 +83,8 @@ Vector3d RelativeRotationFromTwoRotations(const Vector3d& rotation1,
   ceres::AngleAxisToRotationMatrix(rotation1.data(), rotation_matrix1.data());
   ceres::AngleAxisToRotationMatrix(rotation2.data(), rotation_matrix2.data());
 
-  const Eigen::AngleAxisd relative_rotation(
-      noisy_rotation * rotation_matrix2 * rotation_matrix1.transpose());
+  const Eigen::AngleAxisd relative_rotation(noisy_rotation * rotation_matrix2 *
+                                            rotation_matrix1.transpose());
   return relative_rotation.angle() * relative_rotation.axis();
 }
 
@@ -97,7 +97,7 @@ Vector3d RelativeTranslationFromTwoPositions(const Vector3d& position1,
   Eigen::Matrix3d rotation_matrix1;
   ceres::AngleAxisToRotationMatrix(rotation1.data(), rotation_matrix1.data());
   const Vector3d relative_translation =
-        rotation_matrix1 * (position2 - position1).normalized();
+      rotation_matrix1 * (position2 - position1).normalized();
   return noisy_translation * relative_translation;
 }
 
@@ -141,9 +141,8 @@ class EstimatePositionsLinearTest : public ::testing::Test {
     LinearPositionEstimator position_estimator(options_, reconstruction_);
 
     std::unordered_map<ViewId, Vector3d> estimated_positions;
-    EXPECT_TRUE(position_estimator.EstimatePositions(view_pairs_,
-                                                     orientations_,
-                                                     &estimated_positions));
+    EXPECT_TRUE(position_estimator.EstimatePositions(
+        view_pairs_, orientations_, &estimated_positions));
     EXPECT_EQ(estimated_positions.size(), positions_.size());
 
     // Align the positions and measure the error.
@@ -180,8 +179,8 @@ class EstimatePositionsLinearTest : public ::testing::Test {
     // Add random tracks.
     for (int i = 0; i < num_tracks; i++) {
       // Shuffle the view ids so that we can obtain tracks in random views.
-      std::random_shuffle(view_ids.begin(), view_ids.end());
-
+      std::mt19937 gen(std::random_device{}());
+      std::shuffle(view_ids.begin(), view_ids.end(), gen);
       // Create a track that is seen in several views.
       Eigen::Vector4d point = rng.RandVector4d();
       point[2] += 20.0;
@@ -210,7 +209,8 @@ class EstimatePositionsLinearTest : public ::testing::Test {
     }
 
     while (view_pairs_.size() < num_view_pairs) {
-      std::random_shuffle(view_ids.begin(), view_ids.end());
+      std::mt19937 gen(std::random_device{}());
+      std::shuffle(view_ids.begin(), view_ids.end(), gen);
       const ViewIdPair view_id_pair =
           (view_ids[0] < view_ids[1]) ? ViewIdPair(view_ids[0], view_ids[1])
                                       : ViewIdPair(view_ids[1], view_ids[0]);
@@ -260,11 +260,8 @@ TEST_F(EstimatePositionsLinearTest, SmallTestNoNoise) {
   static const int kNumViews = 4;
   static const int kNumTracksPerView = 50;
   static const int kNumViewPairs = 6;
-  TestLinearPositionEstimator(kNumViews,
-                              kNumTracksPerView,
-                              kNumViewPairs,
-                              0.0,
-                              kTolerance);
+  TestLinearPositionEstimator(
+      kNumViews, kNumTracksPerView, kNumViewPairs, 0.0, kTolerance);
 }
 
 TEST_F(EstimatePositionsLinearTest, SmallTestWithNoise) {

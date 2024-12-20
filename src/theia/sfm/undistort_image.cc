@@ -165,27 +165,27 @@ void RemoveImageLensDistortion(const Camera& distorted_camera,
   // For each pixel in the undistorted image, find the coordinate in the
   // distorted image and set the pixel color accordingly.
   const int num_channels = distorted_image.Channels();
-  oiio::ImageBuf& undistorted_img =
-      undistorted_image->GetOpenImageIOImageBuf();
-  oiio::ImageBuf::Iterator<float> undistorted_it(undistorted_img);
-  for (; !undistorted_it.done(); ++undistorted_it) {
-    Eigen::Vector2d image_point(undistorted_it.x() + 0.5,
-                                undistorted_it.y() + 0.5);
+  for (int x = 0; x < undistorted_image->Cols(); ++x) {
+    for (int y = 0; y < undistorted_image->Rows(); ++y) {
+      Eigen::Vector2d image_point(x + 0.5, y + 0.5);
 
-    // Camera models assume that the upper left pixel center is (0.5, 0.5).
-    const Eigen::Vector3d distorted_point =
-        undistorted_intrinsics.ImageToCameraCoordinates(image_point);
-    const Eigen::Vector2d distorted_pixel =
-        distorted_intrinsics.CameraToImageCoordinates(distorted_point);
-    const Eigen::Vector2d pixel(std::round<int>(distorted_pixel.x() - 0.5),
-                                std::round<int>(distorted_pixel.y() - 0.5));
-    // Set all color channels appropriately. Note that we do not need to check
-    // if the distorted pixel is within the image bounds since the
-    // FindUndistortedImageBoundary function has guaranteed that all pixels will
-    // be within the image borders.
-    for (int c = 0; c < num_channels; c++) {
-      undistorted_it[c] = distorted_image.BilinearInterpolate(
-          distorted_pixel.x(), distorted_pixel.y(), c);
+      // Camera models assume that the upper left pixel center is (0.5, 0.5).
+      const Eigen::Vector3d distorted_point =
+          undistorted_intrinsics.ImageToCameraCoordinates(image_point);
+      const Eigen::Vector2d distorted_pixel =
+          distorted_intrinsics.CameraToImageCoordinates(distorted_point);
+      const Eigen::Vector2d pixel(std::round<int>(distorted_pixel.x() - 0.5),
+                                  std::round<int>(distorted_pixel.y() - 0.5));
+      // Set all color channels appropriately. Note that we do not need to check
+      // if the distorted pixel is within the image bounds since the
+      // FindUndistortedImageBoundary function has guaranteed that all pixels
+      // will be within the image borders.
+
+      for (int c = 0; c < num_channels; c++) {
+        float interpolated_value = distorted_image.BilinearInterpolate(
+            distorted_pixel.x(), distorted_pixel.y(), c);
+        undistorted_image->SetXY(x, y, c, interpolated_value);
+      }
     }
   }
 }

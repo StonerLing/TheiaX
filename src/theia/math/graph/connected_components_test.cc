@@ -33,13 +33,14 @@
 // Author: Chris Sweeney (cmsweeney@cs.ucsb.edu)
 
 #include <algorithm>
+#include <random>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 
-#include "gtest/gtest.h"
 #include "theia/math/graph/connected_components.h"
+#include "gtest/gtest.h"
 
 namespace theia {
 
@@ -114,8 +115,8 @@ TEST(ConnectedComponents, RandomOrder) {
 
   for (int i = 0; i < 25; i++) {
     ConnectedComponents<int> connected_components;
-    std::random_shuffle(pairs_to_add.begin(), pairs_to_add.end());
-
+    std::mt19937 gen(std::random_device{}());
+    std::shuffle(pairs_to_add.begin(), pairs_to_add.end(), gen);
     for (const auto& pair_to_add : pairs_to_add) {
       connected_components.AddEdge(pair_to_add.first, pair_to_add.second);
     }
@@ -125,6 +126,5 @@ TEST(ConnectedComponents, RandomOrder) {
     EXPECT_EQ(disjoint_sets.size(), 1);
   }
 }
-
 
 }  // namespace theia

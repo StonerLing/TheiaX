@@ -103,7 +103,8 @@ void CreateViewGraph(
 
   // Add extra edges.
   while (view_graph->NumEdges() < num_edges) {
-    std::random_shuffle(view_ids.begin(), view_ids.end());
+    std::mt19937 gen(std::random_device{}());
+    std::shuffle(view_ids.begin(), view_ids.end(), gen);
     if (view_graph->GetEdge(view_ids[0], view_ids[1]) != nullptr) {
       continue;
     }

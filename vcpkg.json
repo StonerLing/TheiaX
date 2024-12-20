@@ -1,0 +1,24 @@
+{
+  "dependencies": [
+    "cereal",
+    {
+      "name": "ceres",
+      "features": [
+        "suitesparse"
+      ]
+    },
+    "eigen3",
+    "flann",
+    "freeglut",
+    "freeimage",
+    "gflags",
+    "glew",
+    "glog",
+    "gtest",
+    "openimageio",
+    "rapidjson",
+    "rocksdb",
+    "vlfeat",
+    "exiv2"
+  ]
+}

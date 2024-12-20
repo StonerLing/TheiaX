@@ -36,14 +36,11 @@
 #define THEIA_IMAGE_IMAGE_H_
 
 #include <Eigen/Core>
-#include <OpenImageIO/imagebuf.h>
+
 #include <string>
 
+class fipImage;
 namespace theia {
-// Aliasing oiio to whatever the correct Open Image IO namesace is.
-// The macro OIIO_NAMESPACE is defined in OpenImageIO/oiioversion.h.
-namespace oiio = OIIO_NAMESPACE;
-
 // A basic wrapper class for handling images. The images are always converted to
 // floating point type with pixel values ranging from 0 to 1.0. The number of
 // channels is dynamically controlled and methods that access pixels requires
@@ -66,19 +63,19 @@ class FloatImage {
              float* buffer);
 
   // Copy function. This is a deep copy of the image.
-  FloatImage(const FloatImage& image_to_copy);
-  explicit FloatImage(const oiio::ImageBuf& image);
-  FloatImage& operator=(const FloatImage& image2);
-  ~FloatImage() {}
+  FloatImage(const FloatImage& other);
+  explicit FloatImage(const fipImage& other);
+  FloatImage& operator=(const FloatImage& other);
+  ~FloatImage();
 
   // Get a reference to the underlying ImageBuf object for direct
-  // manipulation. The OpenImageIO library has a large number of image
+  // manipulation. The FreeImage library has a large number of image
   // processing algorithms available but it does not make sense to provide a
   // wrapper for all algorithms. Getting a reference to the ImageBuf provides
   // efficient access to the image data so that the image processing algorithms
   // or other manipulations may be executed on the pixels.
-  oiio::ImageBuf& GetOpenImageIOImageBuf();
-  const oiio::ImageBuf& GetOpenImageIOImageBuf() const;
+  fipImage& GetFipImage();
+  const fipImage& GetFipImage() const;
 
   // Image information
   int Rows() const;
@@ -88,15 +85,10 @@ class FloatImage {
   int Channels() const;
 
   // Set the pixel color value at (x, y) in channel c.
-  void SetXY(const int x,
-             const int y,
-             const int c,
-             const float value);
+  void SetXY(const int x, const int y, const int c, const float value);
   // Set the rgb color values at the pixel (x, y). This assumes (with no
   // checks!) that the image is an rgb image.
-  void SetXY(const int x,
-             const int y,
-             const Eigen::Vector3f& rgb);
+  void SetXY(const int x, const int y, const Eigen::Vector3f& rgb);
 
   // Get the pixel value at the given (x, y) position and channel.
   float GetXY(const int x, const int y, const int channel) const;
@@ -111,9 +103,7 @@ class FloatImage {
                  const float value);
   // Set the rgb color values at the given row and column. This assumes (with no
   // checks!) that the image is an rgb image.
-  void SetRowCol(const int row,
-                 const int col,
-                 const Eigen::Vector3f& rgb);
+  void SetRowCol(const int row, const int col, const Eigen::Vector3f& rgb);
   // Get the pixel value at the given location and channel.
   float GetRowCol(const int row, const int col, const int channel) const;
 
@@ -175,7 +165,7 @@ class FloatImage {
   void Resize(double scale);
 
  protected:
-  oiio::ImageBuf image_;
+  fipImage* image_;
 };
 }  // namespace theia
 
