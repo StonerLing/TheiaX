@@ -46,6 +46,7 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include "spectra/include/MatOp/SparseCholesky.h"
 #include "spectra/include/SymGEigsSolver.h"

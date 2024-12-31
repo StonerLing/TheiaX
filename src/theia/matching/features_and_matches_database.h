@@ -80,6 +80,9 @@ class FeaturesAndMatchesDatabase {
   // Supply an iterator to iterate over the features.
   virtual std::vector<std::string> ImageNamesOfFeatures() = 0;
   virtual size_t NumImages() = 0;
+  
+  // Clear all features from the DB.
+  virtual void RemoveAllFeatures() = 0;
 
   // Get the image pair match for the images.
   virtual ImagePairMatch GetImagePairMatch(const std::string& image_name1,

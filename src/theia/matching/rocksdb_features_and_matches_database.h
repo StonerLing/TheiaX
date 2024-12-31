@@ -93,6 +93,8 @@ class RocksDbFeaturesAndMatchesDatabase : public FeaturesAndMatchesDatabase {
   std::vector<std::string> ImageNamesOfFeatures() override;
   size_t NumImages() override;
 
+  void RemoveAllFeatures() override;
+  
   // Get the image pair match for the images.Returns true if the features exist
   // in the database and false otherwise.
   ImagePairMatch GetImagePairMatch(const std::string& image_name1,

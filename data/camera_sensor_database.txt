@@ -3592,6 +3592,8 @@ Vivitar;Vivitar ViviCam 8600s;7.11
 Vivitar;Vivitar ViviCam 8625;7.11
 Vivitar;Vivitar ViviCam X30;7.11
 Vivitar;Vivitar ViviCam X60;7.11
+XAG;Xcam20UC02;13.13
+XAG;Xcam24DC02;21.17
 Yakumo;Yakumo CamMaster SD 432;5.33
 Yakumo;Yakumo CamMaster SD 482;5.75
 Yakumo;Yakumo Mega Image 34;5.33

@@ -47,7 +47,6 @@ function(create_resource_file file output)
     file(WRITE ${output} "const char ${filename}[] = {${filedata}};\nconst size_t ${filename}_size = sizeof(${filename});\n")
 endfunction()
 
-create_resource_file("${PROJECT_SOURCE_DIR}/data/camera_sensor_database.txt" "${CMAKE_CURRENT_BINARY_DIR}/camera_sensor_database.h")
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Add headers
@@ -218,14 +217,28 @@ set(THEIA_LIBRARY_DEPENDENCIES
       Eigen3::Eigen
       gflags::gflags
       glog::glog
-      freeimage::FreeImage
+      freeimage::FreeImagePlus
       Exiv2::exiv2lib
-      RapidJSON
+      rapidjson
       RocksDB::rocksdb
+      SuiteSparse::suitesparseconfig
+      SuiteSparse::amd
+      SuiteSparse::btf
+      SuiteSparse::camd
       SuiteSparse::ccolamd
+      SuiteSparse::colamd
+      SuiteSparse::cholmod
+      SuiteSparse::cxsparse
+      SuiteSparse::klu
+      SuiteSparse::ldl
+      SuiteSparse::umfpack
+      SuiteSparse::spqr
       cereal::cereal
       unofficial::vlfeat::vl
       flann::flann
+      stlplus3
+      statx
+      akaze
 )
 
 set(THEIA_LIBRARY_SOURCE

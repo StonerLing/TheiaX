@@ -132,6 +132,9 @@ TEST(RocksDbFeaturesAndMatchesDatabase, ImageNames) {
   // Open the DB again and ensure it can retreive the features.
   RocksDbFeaturesAndMatchesDatabase db(db_directory);
 
+  // Clear the existed features.
+  db.RemoveAllFeatures();
+  
   std::vector<std::string> random_strings;
   for (int i = 0; i < kNumFeatures; i++) {
     random_strings.emplace_back(RandomString(kStringLength));

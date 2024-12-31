@@ -36,10 +36,14 @@
 #define THEIA_IMAGE_IMAGE_H_
 
 #include <Eigen/Core>
+#include <FreeImagePlus.h>
 
 #include <string>
 
-class fipImage;
+// To avoid the same name defination in FreeImagePlus.h/Windows.h
+#undef max
+#undef min
+
 namespace theia {
 // A basic wrapper class for handling images. The images are always converted to
 // floating point type with pixel values ranging from 0 to 1.0. The number of
@@ -65,7 +69,9 @@ class FloatImage {
   // Copy function. This is a deep copy of the image.
   FloatImage(const FloatImage& other);
   explicit FloatImage(const fipImage& other);
+  FloatImage(FloatImage&& other);
   FloatImage& operator=(const FloatImage& other);
+  FloatImage& operator=(FloatImage&& other);
   ~FloatImage();
 
   // Get a reference to the underlying ImageBuf object for direct
@@ -131,8 +137,11 @@ class FloatImage {
   void Write(const std::string& filename) const;
 
   // Get a pointer to the data.
-  float* Data();
-  const float* Data() const;
+  float* LineData(size_t line);
+  const float* LineData(size_t line) const;
+
+  // Convert raw data to an array.
+  std::vector<float> AsArray(bool is_row_major = true) const;
 
   // Computes the gradient in each respective dimension.
   FloatImage ComputeGradientX() const;
@@ -165,7 +174,7 @@ class FloatImage {
   void Resize(double scale);
 
  protected:
-  fipImage* image_;
+  fipImage image_;
 };
 }  // namespace theia
 

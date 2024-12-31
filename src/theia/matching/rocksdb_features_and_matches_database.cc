@@ -48,8 +48,8 @@
 #include <cereal/types/vector.hpp>
 #include <rocksdb/db.h>
 #include <rocksdb/filter_policy.h>
-#include <rocksdb/table.h>
 #include <rocksdb/statistics.h>
+#include <rocksdb/table.h>
 
 #include "theia/matching/image_pair_match.h"
 #include "theia/matching/keypoints_and_descriptors.h"
@@ -336,6 +336,15 @@ size_t RocksDbFeaturesAndMatchesDatabase::NumImages() {
   database_->GetIntProperty(
       features_handle_.get(), "rocksdb.estimate-num-keys", &num_images);
   return static_cast<size_t>(num_images);
+}
+
+void RocksDbFeaturesAndMatchesDatabase::RemoveAllFeatures() {
+ // Drop the column family handle -- this deletes all key/values in the column family.
+  database_->DropColumnFamily(features_handle_.get());
+
+  // Add the column family back again.
+  features_handle_.reset(CreateColumnFamily(
+      *options_, kFeaturesColumnFamilyName, database_.get()));
 }
 
 // Get the image pair match for the images.

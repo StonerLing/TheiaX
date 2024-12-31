@@ -120,11 +120,11 @@ bool SiftDescriptorExtractor::ComputeDescriptor(const FloatImage& image,
   // The VLFeat functions take in a non-const image pointer so that it can
   // calculate gaussian pyramids. Obviously, we do not want to break our const
   // input, so the best solution (for now) is to copy the image.
-  FloatImage mutable_image = image.AsGrayscaleImage();
+  std::vector<float> mutable_image_array = image.AsGrayscaleImage().AsArray();
 
   // Calculate the first octave to process.
-  int vl_status =
-      vl_sift_process_first_octave(sift_filter_.get(), mutable_image.Data());
+  int vl_status = vl_sift_process_first_octave(sift_filter_.get(),
+                                               mutable_image_array.data());
   // Proceed through the octaves we reach the same one as the keypoint.
   while (sift_keypoint.o != sift_filter_->o_cur) {
     vl_sift_process_next_octave(sift_filter_.get());
@@ -181,11 +181,11 @@ bool SiftDescriptorExtractor::ComputeDescriptors(
   // The VLFeat functions take in a non-const image pointer so that it can
   // calculate gaussian pyramids. Obviously, we do not want to break our const
   // input, so the best solution (for now) is to copy the image.
-  FloatImage mutable_image = image.AsGrayscaleImage();
+  std::vector<float> mutable_image_array = image.AsGrayscaleImage().AsArray();
 
   // Calculate the first octave to process.
-  int vl_status =
-      vl_sift_process_first_octave(sift_filter_.get(), mutable_image.Data());
+  int vl_status = vl_sift_process_first_octave(sift_filter_.get(),
+                                               mutable_image_array.data());
 
   // Proceed through the octaves we reach the same one as the keypoint.  We
   // first resize the descriptors vector so that the keypoint indicies will be
@@ -237,11 +237,11 @@ bool SiftDescriptorExtractor::DetectAndExtractDescriptors(
   // The VLFeat functions take in a non-const image pointer so that it can
   // calculate gaussian pyramids. Obviously, we do not want to break our const
   // input, so the best solution (for now) is to copy the image.
-  FloatImage mutable_image = image.AsGrayscaleImage();
+  std::vector<float> mutable_image_array = image.AsGrayscaleImage().AsArray();
 
   // Calculate the first octave to process.
-  int vl_status =
-      vl_sift_process_first_octave(sift_filter_.get(), mutable_image.Data());
+  int vl_status = vl_sift_process_first_octave(sift_filter_.get(),
+                                               mutable_image_array.data());
   // Process octaves until you can't anymore.
   while (vl_status != VL_ERR_EOF) {
     // Detect the keypoints.

@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <string>
 
+#include "FreeImagePlus.h"
 #include "theia/image/image.h"
 #include "theia/util/random.h"
 #include "gtest/gtest.h"
@@ -51,19 +52,19 @@ RandomNumberGenerator rng(51);
 
 std::string img_filename = THEIA_DATA_DIR + std::string("/") + FLAGS_test_img;
 
-#define ASSERT_IMG_EQ(fip_img, theia_img, rows, cols)                    \
-  ASSERT_EQ(fip_img.getWidth(), theia_img.Cols());                       \
-  ASSERT_EQ(fip_img.getHeight(), theia_img.Rows());                      \
-  ASSERT_EQ(fip_img.getBitsPerPixel() / 8, theia_img.Channels());        \
-  for (int x = 0; x < theia_img.Cols(); ++x) {                           \
-    for (int y = 0; y < theia_img.Rows(); ++y) {                         \
-      BYTE* scanline = fip_img.getScanLine(fip_img.getHeight() - 1 - y); \
-      float* pixel = reinterpret_cast<float*>(scanline) +                \
-                     (x * theia_img.Channels() * sizeof(float));         \
-      for (int c = 0; c < theia_img.Channels(); c++) {                   \
-        ASSERT_EQ(pixel[c], theia_img.GetXY(x, y, c));                   \
-      }                                                                  \
-    }                                                                    \
+#define ASSERT_IMG_EQ(fip_img, theia_img, rows, cols)                      \
+  ASSERT_EQ(fip_img.getWidth(), theia_img.Cols());                         \
+  ASSERT_EQ(fip_img.getHeight(), theia_img.Rows());                        \
+  ASSERT_EQ(fip_img.getBitsPerPixel() / 32, theia_img.Channels());         \
+  for (int x = 0; x < cols; ++x) {                                         \
+    for (int y = 0; y < rows; ++y) {                                       \
+      BYTE* scanline = fip_img.getScanLine(rows - 1 - y);                  \
+      float* pixel =                                                       \
+          reinterpret_cast<float*>(scanline) + (x * theia_img.Channels()); \
+      for (int c = 0; c < theia_img.Channels(); c++) {                     \
+        ASSERT_EQ(pixel[c], theia_img.GetXY(x, y, c));                     \
+      }                                                                    \
+    }                                                                      \
   }
 float Interpolate(const FloatImage& image,
                   const double x,
@@ -92,6 +93,8 @@ float Interpolate(const FloatImage& image,
 TEST(Image, RGBInput) {
   fipImage fip_img;
   fip_img.load(img_filename.c_str());
+  fip_img.convertToRGBF();
+
   FloatImage theia_img(img_filename);
 
   int rows = fip_img.getHeight();
@@ -115,28 +118,16 @@ TEST(Image, RGBColsRows) {
 }
 
 // Test that inputting the old fashioned way is the same as through our class.
-TEST(Image, ConvertToGrayscaleImage) {
-  
-}
+TEST(Image, ConvertToGrayscaleImage) {}
 
-TEST(Image, ConvertToRGBImage) {
-  
-}
+TEST(Image, ConvertToRGBImage) {}
 
-TEST(Image, BillinearInterpolate) {
-  
-}
+TEST(Image, BillinearInterpolate) {}
 
-TEST(Image, ScalePixels) {
-  
-}
+TEST(Image, ScalePixels) {}
 
-TEST(Image, Resize) {
-  
-}
+TEST(Image, Resize) {}
 
-TEST(Image, ResizeUninitialized) {
-  
-}
+TEST(Image, ResizeUninitialized) {}
 
 }  // namespace theia

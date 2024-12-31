@@ -116,6 +116,10 @@ size_t InMemoryFeaturesAndMatchesDatabase::NumImages() {
   return features_.size();
 }
 
+void InMemoryFeaturesAndMatchesDatabase::RemoveAllFeatures() {
+  features_.clear();
+}
+
 // Get the image pair match for the images.
 ImagePairMatch InMemoryFeaturesAndMatchesDatabase::GetImagePairMatch(
     const std::string& image_name1, const std::string& image_name2) {

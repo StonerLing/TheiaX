@@ -54,9 +54,6 @@
 #include "theia/sfm/camera_intrinsics_prior.h"
 #include "theia/util/map_util.h"
 
-// Generated file
-#include "camera_sensor_database.h"
-
 namespace theia {
 namespace {
 
@@ -153,7 +150,8 @@ constexpr double kMillimetersPerMicron = 1.0 / 1000.0;
 ExifReader::ExifReader() { LoadSensorWidthDatabase(); }
 
 void ExifReader::LoadSensorWidthDatabase() {
-  std::stringstream ifs(camera_sensor_database_txt, std::ios::in);
+  std::ifstream ifs(THEIA_CAMERA_SENSOR_DATABASE_PATH,
+                    std::ios::in);
 
   while (!ifs.eof()) {
     // Read in the filename.
@@ -198,11 +196,15 @@ bool ExifReader::ExtractEXIFMetadata(
 
   // Attempt to set the focal length from the plane resolution, then try the
   // sensor width database if that fails.
-  if (!setFocalLengthPriorFromExifResolution(exif_data,
-                                             camera_intrinsics_prior) &&
-      !SetFocalLengthFromSensorDatabase(exif_data, camera_intrinsics_prior) &&
-      !setFocalLengthPriorFromExif35Film(exif_data, camera_intrinsics_prior)) {
-    return true;
+  if (!SetFocalLengthFromSensorDatabase(exif_data, camera_intrinsics_prior)) {
+    if (!setFocalLengthPriorFromExifResolution(exif_data,
+                                               camera_intrinsics_prior)) {
+      if (!setFocalLengthPriorFromExif35Film(exif_data,
+                                             camera_intrinsics_prior)) {
+        LOG(WARNING) << "Could not set focal length prior: " << image_file;
+        return false;
+      }
+    }
   }
 
   // If we passed the if statement above, then we know that the focal length
@@ -210,7 +212,7 @@ bool ExifReader::ExtractEXIFMetadata(
   // focal lengths to true.
   camera_intrinsics_prior->focal_length.is_set = true;
 
-  // Set GPS
+  // Attempt to set GPS prior.
   if (!setGpsPriorFromExif(exif_data, camera_intrinsics_prior)) {
     LOG(WARNING) << "Could not set GPS prior: " << image_file;
   }
@@ -284,9 +286,8 @@ bool ExifReader::setFocalLengthPriorFromExifResolution(
   double focal_length_y_pixels = static_cast<double>(focal_length_mm) *
                                  stored_image_height_pixels / ccd_height_mm;
 
-  // Final focal length in pixels should belong to (0, +\infinite)
   double focal_length_pixels =
-      (focal_length_x_pixels + focal_length_y_pixels) / 2;
+      std::max(focal_length_x_pixels, focal_length_y_pixels);
   camera_intrinsics_prior->focal_length.value[0] = focal_length_pixels;
   return IsValidFocalLength(focal_length_pixels);
 }
@@ -296,6 +297,7 @@ bool ExifReader::SetFocalLengthFromSensorDatabase(
     CameraIntrinsicsPrior* camera_intrinsics_prior) const {
   if (sensor_width_database_.empty()) {
     LOG(WARNING) << "The camera sensor width database is empty";
+    std::cout << "The camera sensor width database is empty" << std::endl;
     return false;
   }
 
@@ -316,7 +318,7 @@ bool ExifReader::SetFocalLengthFromSensorDatabase(
   value_ptr = ExifFindOrNull(exif_data, "Exif.Image.Model");
   if (value_ptr == nullptr) return false;
   std::string model = value_ptr->toString();
-  std::string sensor_name = ToLowercase(make) + " " + ToLowercase(model);
+  std::string sensor_name = ToLowercase(model);
 
   // Try to find the sensor infomation in database
   auto sensor_width_ptr = FindOrNull(sensor_width_database_, sensor_name);
@@ -326,7 +328,7 @@ bool ExifReader::SetFocalLengthFromSensorDatabase(
     return false;
   }
   double sensor_width_mm = *sensor_width_ptr;
-  LOG(INFO) << "Sensor width = " << sensor_width_mm;
+
   if (sensor_width_mm <= 0) return false;
 
   double max_image_dimension_pixels =
@@ -335,6 +337,7 @@ bool ExifReader::SetFocalLengthFromSensorDatabase(
       max_image_dimension_pixels * focal_length_mm / sensor_width_mm;
 
   camera_intrinsics_prior->focal_length.value[0] = focal_length_pixels;
+
   return IsValidFocalLength(focal_length_pixels);
 }
 
@@ -353,6 +356,7 @@ bool ExifReader::setFocalLengthPriorFromExif35Film(
       std::max(image_width, image_height) * focal_length_in_35mm_file / 36.0;
 
   camera_intrinsics_prior->focal_length.value[0] = focal_length;
+
   return IsValidFocalLength(focal_length);
 }
 
@@ -368,6 +372,7 @@ bool ExifReader::setGpsPriorFromExif(
         "1") {
       camera_intrinsics_prior->altitude.value[0] *= -1;
     }
+    camera_intrinsics_prior->altitude.is_set = true;
   }
 
   // GPS latitude
@@ -381,6 +386,7 @@ bool ExifReader::setGpsPriorFromExif(
       "S") {
     camera_intrinsics_prior->latitude.value[0] *= -1;
   }
+  camera_intrinsics_prior->latitude.is_set = true;
 
   // GPS longitude
   auto longitude_ptr = ExifFindOrNull(exif_data, "Exif.GPSInfo.GPSLongitude");
@@ -393,6 +399,7 @@ bool ExifReader::setGpsPriorFromExif(
       "W") {
     camera_intrinsics_prior->longitude.value[0] *= -1;
   }
+  camera_intrinsics_prior->longitude.is_set = true;
 
   return true;
 }

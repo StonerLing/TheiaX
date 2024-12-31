@@ -8,6 +8,12 @@
       ]
     },
     "eigen3",
+    {
+      "name": "exiv2",
+      "features": [
+        "xmp"
+      ]
+    },
     "flann",
     "freeglut",
     "freeimage",
@@ -15,10 +21,8 @@
     "glew",
     "glog",
     "gtest",
-    "openimageio",
     "rapidjson",
     "rocksdb",
-    "vlfeat",
-    "exiv2"
+    "vlfeat"
   ]
 }
