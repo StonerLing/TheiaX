@@ -159,16 +159,6 @@ else (CERES_FOUND)
     "CERES_LIBRARY")
 endif (CERES_FOUND)
 
-# OpenImageIO
-message("-- Check for OpenImageIO")
-find_package(OpenImageIO REQUIRED)
-if (OPENIMAGEIO_FOUND)
-  message("-- Found OpenImageIO: ${OPENIMAGEIO_INCLUDE_DIRS}")
-else (OPENIMAGEIO_FOUND)
-  message(FATAL_ERROR "Can't find OpenImageIO. Please set OPENIMAGEIO_INCLUDE_DIR & "
-    "OPENIMAGEIO_LIBRARY")
-endif (OPENIMAGEIO_FOUND)
-
 # Suitesparse
 find_package(SuiteSparse REQUIRED)
 if (SUITESPARSE_FOUND)
@@ -277,7 +267,6 @@ include_directories(
   ${CERES_INCLUDE_DIRS}
   ${GFLAGS_INCLUDE_DIRS}
   ${GLOG_INCLUDE_DIRS}
-  ${OPENIMAGEIO_INCLUDE_DIRS}
   ${RAPIDJSON_INCLUDE_DIRS}
   ${ROCKSDB_INCLUDE_DIR}
   ${SUITESPARSE_INCLUDE_DIRS}
@@ -393,7 +382,6 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/TheiaConfig.cmake"
               "${CMAKE_SOURCE_DIR}/cmake/FindEigen.cmake"
               "${CMAKE_SOURCE_DIR}/cmake/FindGlog.cmake"
               "${CMAKE_SOURCE_DIR}/cmake/FindGflags.cmake"
-	            "${CMAKE_SOURCE_DIR}/cmake/FindOpenImageIO.cmake"
               "${CMAKE_SOURCE_DIR}/cmake/FindRocksDB.cmake"
               "${CMAKE_SOURCE_DIR}/cmake/FindSuiteSparse.cmake"
               DESTINATION ${CMAKECONFIG_INSTALL_DIR})

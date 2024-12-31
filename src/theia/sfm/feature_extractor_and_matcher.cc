@@ -235,8 +235,8 @@ void FeatureExtractorAndMatcher::ExtractAndMatchFeatures() {
   // After all threads complete feature extraction, perform matching.
   SelectImagePairsWithGlobalDescriptorMatching();
   // Free up memory.
-  global_image_descriptor_extractor_.release();
-  
+  global_image_descriptor_extractor_.reset();
+
   LOG(INFO) << "Matching images...";
   matcher_->MatchImages();
 }
@@ -397,44 +397,50 @@ void FeatureExtractorAndMatcher::
     for (int j = 0; j < num_nearest_neighbors; j++) {
       const int second_id = global_matching_scores[i][j].second;
 
-      // Perform query expansion by adding image i as a candidate match to all of its matches neighbors.
-      const auto& neighbors_of_second_id = pairs_to_match[second_id].ranked_matches;
+      // Perform query expansion by adding image i as a candidate match to all
+      // of its matches neighbors.
+      const auto& neighbors_of_second_id =
+          pairs_to_match[second_id].ranked_matches;
       for (const int neighbor_of_second_id : neighbors_of_second_id) {
-	pairs_to_match[neighbor_of_second_id].expanded_matches.insert(i);
+        pairs_to_match[neighbor_of_second_id].expanded_matches.insert(i);
       }
 
-      // Add the match to both images so that edges are properly utilized for query expansion.
+      // Add the match to both images so that edges are properly utilized for
+      // query expansion.
       pairs_to_match[i].ranked_matches.insert(second_id);
       pairs_to_match[second_id].ranked_matches.insert(i);
-
     }
 
     // Remove the matching scores for image i to free up memory.
     global_matching_scores[i].clear();
   }
 
-
   // Collect all matches into one container.
   std::vector<std::pair<std::string, std::string>> image_names_to_match;
-  image_names_to_match.reserve(num_nearest_neighbors * global_descriptors.size());
+  image_names_to_match.reserve(num_nearest_neighbors *
+                               global_descriptors.size());
   for (const auto& matches : pairs_to_match) {
     for (const int match : matches.second.ranked_matches) {
       if (matches.first < match) {
-	image_names_to_match.emplace_back(image_names[matches.first], image_names[match]);
+        image_names_to_match.emplace_back(image_names[matches.first],
+                                          image_names[match]);
       }
     }
 
     for (const int match : matches.second.expanded_matches) {
       if (matches.first < match) {
-	image_names_to_match.emplace_back(image_names[matches.first], image_names[match]);
+        image_names_to_match.emplace_back(image_names[matches.first],
+                                          image_names[match]);
       }
     }
   }
 
   // Uniquify the matches.
   std::sort(image_names_to_match.begin(), image_names_to_match.end());
-  image_names_to_match.erase(std::unique(image_names_to_match.begin(), image_names_to_match.end()), image_names_to_match.end());
-  
+  image_names_to_match.erase(
+      std::unique(image_names_to_match.begin(), image_names_to_match.end()),
+      image_names_to_match.end());
+
   // Tell the matcher which pairs to match.
   matcher_->SetImagePairsToMatch(image_names_to_match);
 }

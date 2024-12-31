@@ -271,7 +271,7 @@ bool ReconstructionBuilder::ExtractAndMatchFeatures() {
 
   // Extract features and obtain the feature matches.
   feature_extractor_and_matcher_->ExtractAndMatchFeatures();
-  feature_extractor_and_matcher_.release();
+  feature_extractor_and_matcher_.reset();
 
   // Log how many view pairs were geometrically verified.
   const int num_total_view_pairs =

@@ -449,7 +449,7 @@ int main(int argc, char* argv[]) {
     num_views_for_track.emplace_back(track->NumViews());
   }
 
-  reconstruction.release();
+  reconstruction.reset();
 
   // Set up opengl and glut.
   glutInit(&argc, argv);
