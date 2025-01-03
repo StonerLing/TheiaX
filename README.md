@@ -2,7 +2,8 @@
 A fork from Sweeney's [TheiaSfM](https://github.com/sweeneychris/TheiaSfM) with bug fixes, and updates.  I chose not to use GitHub's fork feature because the upstream repository has been inactive for a long time.
 
 # TODO
-- [ ] Fix bugs and simplify the compilation process on the Windows platform.
+- [x] Fix bugs and simplify the compilation process on the Windows platform. Use vcpkg and replace OpenImageIO with FreeImage.
+- [ ] Refactor the code structure.
 # Installation
 
 Original TheiaSfM README
