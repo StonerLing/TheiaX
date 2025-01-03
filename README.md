@@ -5,7 +5,44 @@ A fork from Sweeney's [TheiaSfM](https://github.com/sweeneychris/TheiaSfM) with 
 - [x] Fix bugs and simplify the compilation process on the Windows platform. Use vcpkg and replace OpenImageIO with FreeImage.
 - [ ] Refactor the code structure.
 # Installation
-
+```
+cd path/to/theiaX
+mkdir build
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Release
+```
+Alternatively, you can use a CMake preset by creating a CMakeUserPresets.json file. Here’s an example:
+```json
+{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "default",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/build",
+      "environment": {
+        "VCPKG_ROOT": "path/to/vcpkg/"
+      },
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_GENERATOR_PLATFORM": "x64",
+        "CMAKE_CXX_FLAGS": "/utf-8 /EHsc"
+      }
+    }
+  ]
+}
+```
+Then, configure and build using the preset: 
+```
+cmake --preset=default
+cmake --build build --config Release --target ALL_BUILD -j12
+```
+To run all tests, use:
+```
+ctest -C release
+```
 Original TheiaSfM README
 ---
 
