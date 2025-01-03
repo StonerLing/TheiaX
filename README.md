@@ -41,7 +41,7 @@ cmake --build build --config Release --target ALL_BUILD -j12
 ```
 To run all tests, use:
 ```
-ctest -C release
+ctest -C Release
 ```
 Original TheiaSfM README
 ---
